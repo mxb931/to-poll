@@ -1,6 +1,10 @@
 # to-poll
 
-Bash utility for creating and submitting polling requests through the Polling API.
+Utility for creating and submitting polling requests through the Polling API.
+
+Available in two implementations:
+- **Bash** (`to-poll.sh`) - Pure bash with curl
+- **Python3** (`to-poll.py`) - Python3 with requests library
 
 ## What this script does
 
@@ -15,16 +19,37 @@ It prints step-by-step status with `[OK]`, `[WARN]`, and `[FAIL]` output to simp
 
 ## Requirements
 
+### Bash version (`to-poll.sh`)
 - Bash shell
 - curl
 - shasum
 - python3 (used only for pretty-printing JSON error responses)
 - Network access to the Polling API endpoints
 
+### Python version (`to-poll.py`)
+- Python 3.6+
+- `requests` library
+- Network access to the Polling API endpoints
+
+Install the Python dependencies:
+```bash
+pip install requests
+```
+
 ## Usage
 
+### Bash version
 ```bash
 ./to-poll.sh [environment] -a <app> -f <file> [-f <file> ...] -s <store_list_or_file> -U <username> -P <password> [options]
+```
+
+### Python version
+```bash
+python3 to-poll.py [environment] -a <app> -f <file> [-f <file> ...] -s <store_list_or_file> -U <username> -P <password> [options]
+```
+Or with direct execution (if executable):
+```bash
+./to-poll.py [environment] -a <app> -f <file> [-f <file> ...] -s <store_list_or_file> -U <username> -P <password> [options]
 ```
 
 ## Environment switches
@@ -52,6 +77,8 @@ It prints step-by-step status with `[OK]`, `[WARN]`, and `[FAIL]` output to simp
 
 ## Examples
 
+### Bash version
+
 Single file:
 
 ```bash
@@ -68,6 +95,26 @@ All stores:
 
 ```bash
 ./to-poll.sh -p -a PRICE-1.0 -f price-update.xml -s all -U myuser -P mypass
+```
+
+### Python version
+
+Single file:
+
+```bash
+python3 to-poll.py -q -a SYSCTL -f updt-sysctl.xml -s 9959,9953 -U myuser -P mypass
+```
+
+Multiple files:
+
+```bash
+python3 to-poll.py -d -a IDN -f op1.xml -f op2.xml -s stores.txt -U myuser -P mypass
+```
+
+All stores:
+
+```bash
+python3 to-poll.py -p -a PRICE-1.0 -f price-update.xml -s all -U myuser -P mypass
 ```
 
 ## Troubleshooting
