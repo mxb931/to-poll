@@ -117,6 +117,81 @@ All stores:
 python3 to-poll.py -p -a PRICE-1.0 -f price-update.xml -s all -U myuser -P mypass
 ```
 
+### Python GUI Mode
+
+Launch the GUI application:
+
+```bash
+python3 to-poll.py -g
+```
+
+The GUI provides a user-friendly form with all available parameters:
+
+**Required fields** (marked with `*`):
+- **Application**: Dropdown menu of all supported applications
+- **File(s)**: Browse button to select one or more operation files
+- **Store List**: Text entry or import button to load stores from CSV
+- **Username**: API authentication username
+- **Password**: API authentication password (masked)
+
+**Optional fields**:
+- **Environment**: Dropdown (Development, QA, Production) - default is Development
+- **Expires**: Number of days from today
+- **Run After Date**: Date in YYYY-MM-DD format
+- **Prerequisite**: Request ID for sequencing
+- **Request to Fix**: Request ID to fix (enables Fix Option dropdown when filled)
+- **Fix Option**: Dropdown (rescind, replace, prereq, equivalent_to) - only enabled when Request to Fix is filled
+
+**Features**:
+- **Submit button**: Validates form and submits the request. Values persist for reuse.
+- **Clear button**: Resets all fields to defaults
+- **Import CSV button**: Load store list from a CSV file (comma-delimited)
+- **Production confirmation**: When submitting to Production, confirms with user before proceeding
+- **Output display**: Scrolling text box shows all step-by-step output ([OK]/[WARN]/[FAIL] messages)
+- **Reusable form**: After submit, form values remain so you can resubmit without re-entering data
+
+## Setup for GUI Mode
+
+The GUI mode requires Python 3.12+ with tkinter support. If you don't have the required environment:
+
+### macOS (using Homebrew)
+
+```bash
+# Install Python with tkinter support
+brew install python-tk@3.12
+
+# Create a virtual environment
+/usr/local/bin/python3.12 -m venv venv
+
+# Activate the environment
+source venv/bin/activate
+
+# Install dependencies
+pip install requests
+
+# Run GUI mode
+python to-poll.py -g
+```
+
+### Linux
+
+```bash
+# Install Python with tkinter
+sudo apt-get install python3 python3-tk
+
+# Create virtual environment
+python3 -m venv venv
+
+# Activate
+source venv/bin/activate
+
+# Install dependencies
+pip install requests
+
+# Run
+python to-poll.py -g
+```
+
 ## Troubleshooting
 
 If the script fails, look at:

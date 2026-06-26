@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python
 
 import argparse
 import sys
@@ -10,6 +10,8 @@ import requests
 from pathlib import Path
 from typing import List, Dict, Optional
 
+from to_poll_core import APPS, do_curl, build_server_url
+
 # ── Terminal formatting ────────────────────────────────────────────────────
 class Colors:
     NORMAL = '\033[0m'
@@ -19,14 +21,6 @@ class Colors:
 N = Colors.NORMAL
 B = Colors.BOLD
 BG = Colors.HIGHLIGHT
-
-# Valid applications
-APPS = [
-    "IDN", "UPD", "PhoenixC", "CUPN", "STORE", "PARAM", "Volume", "XCDS", 
-    "APPS", "QCDS", "DXGROUP", "EDIACCT", "Cust", "MSAVEND", 
-    "SizeCodeMaintenance", "MfgMaintenance", "PRICE-1.0", "PRICE-2.0", 
-    "ProductMaintenance", "storeStaffing", "SYSCTL", "TinterVersion", "DNRETURN"
-]
 
 # ── Output helpers ────────────────────────────────────────────────────────
 CURL_STATUS = ""
@@ -73,28 +67,12 @@ def print_response(body: str):
     
     print("  " + "-" * 28, file=sys.stderr)
 
-def do_curl(method: str, url: str, headers: Dict = None, data: str = None, 
-            files: Dict = None, auth: tuple = None, verify_ssl: bool = False) -> tuple:
-    """Make HTTP request and return (status_code, response_body)"""
-    try:
-        if method == "GET":
-            resp = requests.get(url, headers=headers, auth=auth, verify=verify_ssl)
-        elif method == "POST":
-            resp = requests.post(url, headers=headers, data=data, files=files, 
-                               auth=auth, verify=verify_ssl)
-        elif method == "PUT":
-            resp = requests.put(url, headers=headers, data=data, auth=auth, 
-                              verify=verify_ssl)
-        else:
-            raise ValueError(f"Unsupported method: {method}")
-        
-        return resp.status_code, resp.text
-    except Exception as e:
-        fail(f"Request failed: {e}")
-        return 0, str(e)
+
 
 def usage(prog_name: str):
     print(f"\nUsage Documentation for {B}{prog_name}{N}")
+    print(f"{B}Mode selection{N}")
+    print(f"{BG}-g{N}  --Launch GUI mode (all other parameters ignored)")
     print(f"{B}The following command line switches indicate the environment{N}")
     print(f"{BG}-p{N}  --Sets Production")
     print(f"{BG}-q{N}  --Sets QA")
@@ -118,6 +96,9 @@ def usage(prog_name: str):
 def main():
     parser = argparse.ArgumentParser(add_help=False)
     
+    # GUI mode
+    parser.add_argument('-g', '--gui', action='store_true', help='Launch GUI mode')
+    
     # Environment
     parser.add_argument('-d', '--dev', action='store_true', help='Development (default)')
     parser.add_argument('-q', '--qa', action='store_true', help='QA')
@@ -140,17 +121,23 @@ def main():
     
     args = parser.parse_args()
     
+    # Handle GUI mode
+    if args.gui:
+        from gui import run_gui
+        run_gui()
+        return
+    
     # Handle help
     if args.help or len(sys.argv) == 1:
         usage(sys.argv[0])
         sys.exit(0)
     
     # Determine server
-    server = "https://pollingdev.sherwin.com/polling"  # Default
+    server = build_server_url("Development")  # Default
     if args.qa:
-        server = "https://pollingqa.sherwin.com/polling"
+        server = build_server_url("QA")
     elif args.prod:
-        server = "https://polling.sherwin.com/polling"
+        server = build_server_url("Production")
     
     # Validate required parameters
     if not args.app:
